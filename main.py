@@ -24,7 +24,6 @@ def load_vgg(sess, vgg_path):
     :param vgg_path: Path to vgg folder, containing "variables/" and "saved_model.pb"
     :return: Tuple of Tensors from VGG model (image_input, keep_prob, layer3_out, layer4_out, layer7_out)
     """
-    # TODO: Implement function
     #   Use tf.saved_model.loader.load to load the model and weights
     vgg_tag = 'vgg16'
 
@@ -41,7 +40,7 @@ def load_vgg(sess, vgg_path):
             sess.graph.get_tensor_by_name(vgg_layer3_out_tensor_name), \
             sess.graph.get_tensor_by_name(vgg_layer4_out_tensor_name), \
             sess.graph.get_tensor_by_name(vgg_layer7_out_tensor_name)
-    #    None, None, None, None
+
 tests.test_load_vgg(load_vgg, tf)
 
 
@@ -54,7 +53,6 @@ def layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes):
     :param num_classes: Number of classes to classify
     :return: The Tensor for the last layer of output
     """
-    # TODO: Implement function
     # picture of architecture: page 4 of
     # https://people.eecs.berkeley.edu/~jonlong/long_shelhamer_fcn.pdf
     # Resources:
@@ -83,10 +81,9 @@ def optimize(nn_last_layer, correct_label, learning_rate, num_classes):
     :param num_classes: Number of classes to classify
     :return: Tuple of (logits, train_op, cross_entropy_loss)
     """
-    # TODO: Implement function
+
     logits = tf.reshape(nn_last_layer, (-1, num_classes))
     cross_entropy_loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=correct_label))
-
 
     loss_operation = tf.reduce_mean(cross_entropy_loss)
     with tf.name_scope('train'):
@@ -112,22 +109,14 @@ def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_l
     :param keep_prob: TF Placeholder for dropout keep probability
     :param learning_rate: TF Placeholder for learning rate
     """
-    # TODO: Implement function
     merged = tf.summary.merge_all()
     print("start training")
     sess.run(tf.global_variables_initializer())
     for i in range(epochs):
+        print("epoch")
         for batch_x, batch_y in get_batches_fn(batch_size):
-            #input_image, correct_label = shuffle(input_image, correct_label)
-            print("batch")
-            sess.run([train_op], feed_dict={input_image: batch_x[0:2], keep_prob: 0.5, correct_label: batch_y[0:2]})
-            # train_writer.add_summary(summary, i)
-                # train_writer.add_summary(summary, i)
-            # validation_accuracy = evaluate(X_validate, y_validate)
-            # print("EPOCH {} ...".format(i+1))
-            # print("Validation Accuracy = {:.3f}".format(validation_accuracy))
-            # print()
-
+            _, loss_val = sess.run([train_op, cross_entropy_loss], feed_dict={input_image: batch_x, keep_prob: 1, correct_label: batch_y})
+        print ('loss = ', loss_val)
 
     pass
 tests.test_train_nn(train_nn)
@@ -149,8 +138,8 @@ def run():
 
     learning_rate = 0.001
     keep_prob = 1
-    EPOCHS = 1
-    BATCH_SIZE = 128
+    EPOCHS = 15
+    BATCH_SIZE = 2
 
     with tf.Session() as sess:
         # Path to vgg model
